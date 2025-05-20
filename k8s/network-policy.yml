@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-specific-ip
+spec:
+  podSelector:
+    matchLabels:
+      app: demo-vuln-genai 
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: <VPN IP Addr>/24 

@@ -1,0 +1,80 @@
+name: build
+on:
+  push:
+    branches:
+      - main    
+jobs:
+  all-in-one:
+    name: Aqua scanner
+    runs-on: ubuntu-latest
+    environment: devtest
+    env:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+      ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      IMAGE_TAG: ${{ github.sha }}
+      AQUA_KEY: ${{ secrets.AQUA_KEY }}
+      AQUA_SECRET: ${{ secrets.AQUA_SECRET }}
+      TRIVY_RUN_AS_PLUGIN: 'aqua'
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      TRIVY_USERNAME: ${{secrets.TRIVY_USERNAME}}
+      TRIVY_PASSWORD: ${{secrets.TRIVY_PASSWORD}}
+      AQUA_HOST: ${{secrets.AQUA_HOST}}
+      AQUA_TOKEN: ${{secrets.AQUA_TOKEN}}
+      TRIVY_DB_REPOSITORY: "registry.aquasec.com/trivy-db:2"
+      TRIVY_JAVA_DB_REPOSITORY: "registry.aquasec.com/trivy-java-db:1"
+      TRIVY_CHECKS_BUNDLE_REPOSITORY: "registry.aquasec.com/trivy-checks:1"
+      OVERRIDE_SOURCE_BRANCH: "main"
+      
+    permissions:
+        id-token: write
+    
+    steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 32768 # The Go cache (`~/.cache/go-build` and `~/go/pkg`) requires a lot of storage space.
+          remove-android: 'true'
+          remove-docker-images: 'true'
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run Aqua scanner
+        uses: docker://aquasec/aqua-scanner
+        with:
+          args: trivy -d fs --scanners config,vuln,secret . --sast
+      - name: Build image locally
+        run: |
+          docker build -t "$ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG" .
+      - name: Login to Aqua Registry and run Image Scan
+        run: |
+          docker login registry.aquasec.com -u ${{ secrets.TRIVY_USERNAME }} -p ${{ secrets.TRIVY_PASSWORD }}
+          docker run -v /var/run/docker.sock:/var/run/docker.sock registry.aquasec.com/scanner:2410.6.26 scan --token ${{secrets.AQUA_TOKEN}} --host ${{secrets.AQUA_HOST}} --local --registry "Docker Hub" $ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG
+      - name: Manifest Generation
+        run: |
+          curl -sLo install.sh download.codesec.aquasec.com/billy/install.sh
+          curl -sLo install.sh.checksum https://github.com/argonsecurity/releases/releases/latest/download/install.sh.checksum
+          if ! cat install.sh.checksum | shasum -a 256 ; then
+            echo "install.sh checksum failed"
+            exit 1
+          fi
+          sh install.sh
+          rm install.sh install.sh.checksum
+          billy generate \
+              --access-token "${{ secrets.GITHUB_TOKEN }}" \
+              --aqua-key "${{ secrets.AQUA_KEY }}" \
+              --aqua-secret "${{ secrets.AQUA_SECRET }}" \
+              --artifact-path "$ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          #role-session-name: GitHubActions
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Tag and push image to Amazon ECR
+        run: |
+          docker push $ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG

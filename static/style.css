@@ -1,0 +1,125 @@
+body {
+    background: black;
+}
+
+.logo-container {
+    display: flex;
+    justify-content: center;
+}
+
+.logo {
+   height: 120px;
+   width: auto; 
+}
+
+/* Overall chat container */
+#chat-container {
+    width: 731px;
+    height: 609px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    background-color: #333333; /* Updated to a consistent dark grey */
+    font-family: 'Arial', sans-serif;
+    position: relative;
+    margin: 20px auto;
+}
+
+/* Chat box styling */
+#chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Individual message styling */
+.message {
+    padding: 10px 15px; /* Slightly reduced padding for a cleaner look */
+    border-radius: 18px;
+    color: white;
+    max-width: 60%;
+    font-size: 16px;
+}
+
+/* Styling for messages sent by the user */
+.message.sent {
+    background-color: #4F4F4F; /* Lighter grey for sent messages */
+    align-self: flex-end;
+}
+
+/* Styling for messages received from the other party */
+.message.received {
+    background-color: #F62A54; /* Keeping the distinctive color for received messages */
+    align-self: flex-start;
+}
+
+/* Input button container */
+/* Input button container */
+#input-container {
+    display: flex;
+    align-items: center;
+    margin: 0 20px 20px;
+    border-radius: 22px;
+    background-color: #4F4F4F;
+    position: relative; /* Relative position for absolute positioning of the send icon */
+}
+
+/* User input area */
+#user-input {
+    flex-grow: 1;
+    padding: 10px 10px 10px 20px; /* Adjust padding to make space for the icon */
+    border-radius: 22px;
+    border: none;
+    background-color: #4F4F4F;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    white-space: pre-wrap; /* Preserve line breaks */
+    word-wrap: break-word; /* Allow long words to break and wrap */
+    overflow: hidden; /* Hide overflow content */
+    resize: vertical; /* Allow vertical resizing */
+    height: 100px;
+}
+
+/* Send button styling - now just for the icon, hidden by default */
+#send-button {
+    position: absolute; /* Absolute position to place it inside the input area */
+    right: 10px; /* Positioned to the right inside the input container */
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: white;
+    outline: none;
+}
+
+/* Send icon - use a common symbol like '>' or similar for send */
+.send-icon {
+ height: 24px;
+ width: 24px;;
+}
+
+/* Style adjustments for when the input is focused */
+#user-input:focus + #send-button {
+    color: rgb(219, 222, 219); /* Optional: Change icon color on input focus */
+}
+
+/* Custom Scrollbar Styles */
+#chat-box::-webkit-scrollbar {
+    width: 10px; /* Adjust the width of the scrollbar */
+}
+
+#chat-box::-webkit-scrollbar-track {
+    background: #2c2c2c; /* Color of the background of scrollbar track */
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+    background: #555; /* Color of the scrollbar itself */
+    border-radius: 5px; /* Rounded corners for the scrollbar */
+}
+
+#chat-box::-webkit-scrollbar-thumb:hover {
+    background: #777; /* Color of scrollbar when hovered over */
+}

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-vuln-svc
+  labels:
+    app: demo-vuln-genai
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/load-balancer-source-ranges: <VPN ip address>/32
+spec:
+  selector:
+    app: demo-vuln-genai
+  ports:
+    - protocol: TCP
+      port: 443 
+      targetPort: 5001
+  type: LoadBalancer
+  loadBalancerSourceRanges:
+  - "<VPN ip address>/32"

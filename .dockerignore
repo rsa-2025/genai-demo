@@ -1,0 +1,10 @@
+.github/
+__pycache__/
+.env
+.git/
+.dockerignore
+Dockerfile
+README.md
+venv/
+workflow/
+temp/

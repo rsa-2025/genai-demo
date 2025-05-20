@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-vuln-genai
+  labels:
+    app: demo-vuln-genai 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-vuln-genai 
+  template:
+    metadata:
+      labels:
+        app: demo-vuln-genai 
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: demo-vuln-genai 
+        image: <ECR Image URI>
+        securityContext:
+          privileged: true
+          allowPrivilegeEscalation: true
+          runAsUser: 0
+        ports:
+        - containerPort: 5001
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-key-secret
+              key: OPENAI_API_KEY
+
