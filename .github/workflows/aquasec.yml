@@ -47,7 +47,7 @@ jobs:
           args: trivy -d fs --scanners config,vuln,secret . --sast
       - name: Build image locally
         run: |
-          docker build -t "$ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG" .
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
       - name: Login to Aqua Registry and run Image Scan
         run: |
           docker login registry.aquasec.com -u ${{ secrets.TRIVY_USERNAME }} -p ${{ secrets.TRIVY_PASSWORD }}
@@ -78,4 +78,4 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
       - name: Tag and push image to Amazon ECR
         run: |
-          docker push $ECR_REGISTRY/aquainteglab:$ECR_REPOSITORY$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
