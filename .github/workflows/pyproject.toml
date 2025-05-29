@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "stock-advice-agent"
+version = "0.1.0"
+description = "A Flask app with LangChain and investment advice AI agent"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "3.0.2"
+langchain = "0.1.14"
+langchain-openai = "0.1.1"
+openai = "1.23.2"
+yfinance = "0.2.61"
+pandas = "2.2.2"
+numpy = "1.26.4"
+tiktoken = "0.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
