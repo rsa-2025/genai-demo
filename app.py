@@ -50,7 +50,7 @@ def get_stock_price(ticker, period='1d'):
     try:
         todays_data = stock.history(period=period)
         if not todays_data.empty:
-            return todays_data['Close'][-1]
+            return todays_data['Close'].iloc[-1]
         else:
             return "No data available"
     except Exception as e:
