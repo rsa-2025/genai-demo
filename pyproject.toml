@@ -9,9 +9,9 @@ packages = [{ include = "app" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 flask = "3.0.2"
-langchain = "0.1.14"
-langchain-openai = "0.1.1"
-openai = "1.23.2"
+langchain = "^0.1.17"
+langchain-openai = "^0.1.6"
+openai = "^1.23.2"
 yfinance = "0.2.61"
 pandas = "2.2.2"
 numpy = "1.26.4"
