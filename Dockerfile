@@ -1,28 +1,33 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt /app
-
-# Install system dependencies and Rust
+# Install system dependencies, Rust, and Poetry
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     pkg-config \
     libssl-dev \
     && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-    && . $HOME/.cargo/env \
-    && pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
-    && pip install -U psutil \
-    && pip install -U aiohttp==3.9.0rc0 \
-    # Cleanup to reduce image size
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
     && apt-get remove -y build-essential curl \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy application files
+# Copy Poetry files first for dependency caching
+COPY pyproject.toml poetry.lock* /app/
+
+# Configure Poetry to not use virtualenvs (for Docker compatibility)
+ENV POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_NO_INTERACTION=1
+
+# Install dependencies
+RUN poetry install --no-root
+
+# Copy the rest of the application code
 COPY . /app
 
 # Set permissions
